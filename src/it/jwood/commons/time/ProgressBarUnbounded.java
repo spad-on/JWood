@@ -3,27 +3,23 @@ package it.jwood.commons.time;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-public class ProgressBarUnbounded extends Bar {
+class ProgressBarUnbounded extends ProgressBar {
 
 
     private static final String BOL = "\r"; //"\33[1A\33[2K";
     private static String TICK = "=";
     private static int TICK_PROGRESSION = 100000;
 
-
-    public static <T> Iterable<T> log(Iterator<T> iterator){
-        return log(iterator, TICK_PROGRESSION);
-    }
-
-    public static <T> Iterable<T> log(Iterator<T> iterator, int progressionStep){
-        return () -> new LogIteratorUnbounded<>(iterator, progressionStep);
+    public static void setTickProgression(int tickProgression){
+        TICK_PROGRESSION = tickProgression;
     }
 
     private int progressionStep = TICK_PROGRESSION;
     private long lastTime;
     private long avgDiffTime;
 
-    public ProgressBarUnbounded(int progressionStep){
+
+    protected ProgressBarUnbounded(int progressionStep){
         super();
         this.progressionStep = progressionStep;
         this.lastTime = -1;
@@ -31,7 +27,7 @@ public class ProgressBarUnbounded extends Bar {
 
     }
 
-    public ProgressBarUnbounded(){
+    protected ProgressBarUnbounded(){
         this(TICK_PROGRESSION);
     }
 
@@ -39,6 +35,9 @@ public class ProgressBarUnbounded extends Bar {
         return progressionStep;
     }
 
+    protected void setProgressionStep(int progressionStep) {
+        this.progressionStep = progressionStep;
+    }
 
     protected void display(){
         StringBuilder postfix = new StringBuilder();
@@ -64,7 +63,7 @@ public class ProgressBarUnbounded extends Bar {
     }
 
 
-    private static class LogIteratorUnbounded<T> implements Iterator<T> {
+    static class LogIteratorUnbounded<T> implements Iterator<T> {
 
         private final Iterator<T> it;
         private final ProgressBarUnbounded bar;

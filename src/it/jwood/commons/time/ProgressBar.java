@@ -1,42 +1,37 @@
 package it.jwood.commons.time;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ProgressBar extends Bar {
+public abstract class ProgressBar {
 
-    private static final String BOL = "\r";
-    private static String TICK = "=";
-    private static int MAX_LENGTH = 70;
-
-    public static void setMaxLength(int maxLength) {
-        MAX_LENGTH = maxLength;
-    }
+    protected static final String BOL = "\r"; //"\33[1A\33[2K";
+    protected static String TICK = "=";
 
     public static void setTICK(String TICK) {
-        ProgressBar.TICK = TICK;
+        TICK = TICK;
     }
 
-    public static <T> Iterable<T> log(Collection<T> collection){
-        return log(collection.iterator(), collection.size());
+
+    protected int current = 0;
+    private boolean closed;
+    protected Map<String, Object> postfixes = new HashMap<>();
+
+
+
+    public ProgressBar(){
+        System.err.println();
     }
 
-    public static <T> Iterable<T> log(Iterator<T> iterator, int total){
-        return () -> new LogIterator<>(iterator, total);
-    }
-
-    private int total;
-    private long avgDiffTime;
-    private long lastTime;
-
-    public ProgressBar(int total){
-        super();
-        this.total = total;
-        this.lastTime = -1;
+    public void update(int add){
+        this.current += add;
         display();
     }
 
+    public void update(){
+        this.current++;
+        display();
+    }
 
     public void addPostfix(String key, Object value){
         this.postfixes.put(key, value);
@@ -46,76 +41,12 @@ public class ProgressBar extends Bar {
         this.postfixes.remove(key);
     }
 
-    public int getTotal() {
-        return total;
-    }
+    protected abstract void display();
 
-    protected void display(){
-        StringBuilder postfix = new StringBuilder();
-        postfixes.forEach((k, v) -> postfix.append(k).append(": ").append(v).append(" "));
-
-        String eta = "";
-        long currentTime = System.currentTimeMillis();
-        if (this.lastTime > 0){
-            long diff = currentTime - lastTime;
-            avgDiffTime += diff;
-            double second = (1.*avgDiffTime/(current*1000) * (total - current));
-            long min = (long)second/60;
-            min %= 60;
-            long hours = (long)second/3600;
-            double sec = second - hours*3600 - min*60;
-            eta = String.format("%dh %dm %.2fs", (int)hours, (int)min, sec);
-        }
-        lastTime = currentTime;
-        float percentage = 100.f*current/total;
-        StringBuilder progress = new StringBuilder();
-        int thicks = total <=0 ? 0 : MAX_LENGTH*current/total;
-        for (int i = 0; i < thicks; i++) {
-            if (i == thicks-1 && i != MAX_LENGTH-1)
-                progress.append(">");
-            else
-                progress.append(TICK);
-        }
-        for (int i = thicks; i < MAX_LENGTH; i++)
-            progress.append(" ");
-        System.err.print(BOL);
-        System.err.printf("ETA: '%s' %.2f%%[%s] %s", eta, percentage, progress.toString(), postfix.toString().trim());
-    }
-
-
-    private static class LogIterator<T> implements Iterator<T> {
-
-        private final Iterator<T> it;
-        private final ProgressBar bar;
-
-        public LogIterator(Iterator<T> it, int total){
-            this.it = it;
-            this.bar = new ProgressBar(total);
-        }
-
-        @Override
-        public boolean hasNext() {
-            boolean hasNext = it.hasNext();
-            if (!hasNext)
-                bar.close();
-            return hasNext;
-        }
-
-        @Override
-        public T next() {
-            bar.update();
-            return it.next();
-        }
-
-        @Override
-        public void remove() {
-            it.remove();
-        }
-
-        @Override
-        public void forEachRemaining(Consumer<? super T> consumer) {
-            it.forEachRemaining(s -> {bar.update(); consumer.accept(s);});
-            bar.close();
+    public void close(){
+        if (!closed) {
+            System.err.println();
+            closed = true;
         }
     }
 }
