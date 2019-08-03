@@ -9,9 +9,9 @@ Here is a brief summary of its content:
 - **streams**: Series of custom *Collectors*, *Predicates*, *Stream* such as *CStream.fromIterable()*
 - **time**: Contains some ProgressBar and Timer objects to time and show current job progress.
 - **tuples**: Collection of *Pair*, *Triplet* and *Poker* objects which can be very useful during stream processing.
+- **concurrent**: Pool object and synchronization utilities to do **controlled** parallel processing (*parallelStream()* is not always the answer).
 
 There are also some **beta** package that are not fully tested:
-- **concurrent**: Pool object and synchronization utilities to do **controlled** parallel processing (*parallelStream()* is not always the solution).
 - **xml.dom**: Stream-like library to navigate through an xml file and fetch all needed information in a functional way.
 
 ## Dependencies
