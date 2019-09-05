@@ -11,8 +11,6 @@ Here is a brief summary of its content:
 - **tuples**: Collection of *Pair*, *Triplet* and *Poker* objects which can be very useful during stream processing.
 - **concurrent**: Pool object and synchronization utilities to do **controlled** parallel processing (*parallelStream()* is not always the answer).
 
-There are also some **beta** package that are not fully tested:
-- **xml.dom**: Stream-like library to navigate through an xml file and fetch all needed information in a functional way.
 
 ## Dependencies
 In order to work you will need to download [Apache Common Compress](https://commons.apache.org/proper/commons-compress/) library (v1.17) and link it to your project before building it.
